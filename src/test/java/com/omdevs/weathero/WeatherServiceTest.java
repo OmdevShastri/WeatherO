@@ -40,7 +40,7 @@ public class WeatherServiceTest {
         LocalDate date = LocalDate.of(2020, 10, 15);
 
         PincodeDetails pincodeDetails = new PincodeDetails(1L, pincode, 18.5204, 73.8567);
-        Weather expectedWeather = new Weather(1L, pincodeDetails, date, 30.5, "Clear Sky");
+        Weather expectedWeather = new Weather(1L, pincodeDetails, date, 302.16, "Clouds");
 
         // Mock repository and external API calls
         when(pincodeRepository.findByPincode(pincode)).thenReturn(Optional.of(pincodeDetails));

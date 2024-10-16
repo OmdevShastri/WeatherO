@@ -1,5 +1,5 @@
 package com.omdevs.weathero;
-
+//took some help of ChatGPT
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

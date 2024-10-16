@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:~/test
+    url: jdbc:h2:~/test;DB_CLOSE_ON_EXIT=FALSE;AUTO_SERVER=TRUE
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -10,6 +10,4 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-
-openweather:
-  api-key: cac8930c0bdcd720d0352a8adf9bfb76
+    show-sql: true
