@@ -35,8 +35,8 @@ public class WeatherServiceTest {
 
     @Test
     public void testGetWeatherFromAPI() {
-        String pincode = "411014";
-        LocalDate date = LocalDate.of(2020, 10, 15);
+        String pincode = "410206";
+        LocalDate date = LocalDate.of(2023, 10, 15);
 
         PincodeDetails pincodeDetails = new PincodeDetails(1L, pincode, 18.5204, 73.8567);
         Weather expectedWeather = new Weather(1L, pincodeDetails, date, 30.5, "Clear Sky");

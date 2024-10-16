@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:~/test
     driver-class-name: org.h2.Driver
     username: sa
-    password: password
+    password:
   h2:
     console:
       enabled: true
@@ -12,4 +12,4 @@ spring:
       ddl-auto: update
 
 openweather:
-  api-key: YOUR_OPENWEATHER_API_KEY
+  api-key: cac8930c0bdcd720d0352a8adf9bfb76
