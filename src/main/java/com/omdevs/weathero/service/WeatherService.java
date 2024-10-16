@@ -1,4 +1,5 @@
 package com.omdevs.weathero.service;
+import com.omdevs.weathero.entity.LatLong;
 import com.omdevs.weathero.entity.PincodeDetails;
 import com.omdevs.weathero.entity.Weather;
 import com.omdevs.weathero.repository.PincodeRepository;
@@ -28,7 +29,10 @@ public class WeatherService {
         // Step 1: Check if Pincode exists in DB
         Optional<PincodeDetails> pincodeDetailsOpt = pincodeRepository.findByPincode(pincode);
         if (!pincodeDetailsOpt.isPresent()) {
-            throw new RuntimeException("Pincode not found in the database.");
+            // Fetch lat/long from external API
+            PincodeDetails latLong = externalApiService.getLatLongFromPincode(pincode);
+            latLong = new PincodeDetails(pincode, latLong.getLatitude(), latLong.getLongitude());
+            pincodeRepository.save(pincodeDetailsOpt.get());
         }
 
         PincodeDetails pincodeDetails = pincodeDetailsOpt.get();

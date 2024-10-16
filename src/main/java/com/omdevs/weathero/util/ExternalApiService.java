@@ -11,10 +11,10 @@ import java.time.LocalDate;
 @Service
 public class ExternalApiService {
 
-    private static final String GEOCODING_API_URL = "http://api.openweathermap.org/geo/1.0/zip?zip={zip code},{country code}&appid={apikey}";
+    private static final String GEOCODING_API_URL = "https://api.openweathermap.org/geo/1.0/zip?zip={zip code},{country code}&appid={apikey}";
     private static final String WEATHER_API_URL = "https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={apiKey}";
 
-    private static final String OPENWEATHER_API_KEY = "cac8930c0bdcd720d0352a8adf9bfb76";
+    private static final String OPENWEATHER_API_KEY = "cac8930c0bdcd720d0352a8adf9bfb76"; //this bad and exposed //left for test
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -56,7 +56,7 @@ public class ExternalApiService {
     public Weather getWeather(double latitude, double longitude) throws JSONException {
         String url = WEATHER_API_URL.replace("{lat}", String.valueOf(latitude))
                 .replace("{lon}", String.valueOf(longitude))
-                .replace("{apiKey}", "YOUR_API_KEY");
+                .replace("{apiKey}", OPENWEATHER_API_KEY);
 
         // Make API call
         String response = restTemplate.getForObject(url, String.class);
