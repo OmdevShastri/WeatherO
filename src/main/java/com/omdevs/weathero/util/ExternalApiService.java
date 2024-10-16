@@ -2,9 +2,10 @@ package com.omdevs.weathero.util;
 
 import com.omdevs.weathero.entity.PincodeDetails;
 import com.omdevs.weathero.entity.Weather;
+import org.json.JSONException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
+import org.json.JSONObject;
 import java.time.LocalDate;
 
 @Service
@@ -17,26 +18,59 @@ public class ExternalApiService {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    public PincodeDetails getLatLongFromPincode(String pincode) {
-        String url = GEOCODING_API_URL + pincode + "&key=" + OPENWEATHER_API_KEY;
-        // Make API call using RestTemplate and parse lat/long
-        // For simplicity, we'll assume a successful response
-        double latitude = ...;  // Extract from response
-        double longitude = ...; // Extract from response
+    public PincodeDetails getLatLongFromPincode(String pincode) throws JSONException {
+        String url = GEOCODING_API_URL.replace("{pincode}", pincode)
+                .replace("{apiKey}", OPENWEATHER_API_KEY);
+
+        // Call the API using RestTemplate
+        String response = restTemplate.getForObject(url, String.class);
+
+        // Parse the response
+        JSONObject jsonObject = new JSONObject(response);
+        double latitude = jsonObject.getDouble("lat");
+        double longitude = jsonObject.getDouble("lon");
 
         return new PincodeDetails(null, pincode, latitude, longitude);
     }
 
-    public Weather getWeather(double latitude, double longitude, LocalDate date) {
+    public Weather getWeather(double latitude, double longitude, LocalDate date) throws JSONException {
         String url = WEATHER_API_URL.replace("{lat}", String.valueOf(latitude))
                 .replace("{lon}", String.valueOf(longitude))
                 .replace("{apiKey}", OPENWEATHER_API_KEY);
 
-        // Call OpenWeather API and parse response
-        // For simplicity, we'll assume a successful response
-        double temperature = ...; // Extract from response
-        String description = ...; // Extract from response
+        // Make API call
+        String response = restTemplate.getForObject(url, String.class);
+
+        // Parse the response
+        JSONObject jsonObject = new JSONObject(response);
+
+        // Extract weather details
+        double temperature = jsonObject.getJSONObject("main").getDouble("temp");
+        String description = jsonObject.getJSONArray("weather")
+                .getJSONObject(0)
+                .getString("description");
 
         return new Weather(null, null, date, temperature, description);
+    }
+
+    public Weather getWeather(double latitude, double longitude) throws JSONException {
+        String url = WEATHER_API_URL.replace("{lat}", String.valueOf(latitude))
+                .replace("{lon}", String.valueOf(longitude))
+                .replace("{apiKey}", "YOUR_API_KEY");
+
+        // Make API call
+        String response = restTemplate.getForObject(url, String.class);
+
+        // Parse the response
+        JSONObject jsonObject = new JSONObject(response);
+
+        // Extract weather details
+        double temperature = jsonObject.getJSONObject("main").getDouble("temp");
+        String description = jsonObject.getJSONArray("weather")
+                .getJSONObject(0)
+                .getString("description");
+
+        // Construct Weather object
+        return new Weather(null, null, LocalDate.now(), temperature, description);
     }
 }

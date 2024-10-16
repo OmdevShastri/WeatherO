@@ -4,6 +4,7 @@ import com.omdevs.weathero.entity.Weather;
 import com.omdevs.weathero.repository.PincodeRepository;
 import com.omdevs.weathero.repository.WeatherRepository;
 import com.omdevs.weathero.util.ExternalApiService;
+import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,29 +23,32 @@ public class WeatherService {
     @Autowired
     private ExternalApiService externalApiService;
 
-    public Weather getWeather(String pincode, LocalDate date) {
-        // Check if Pincode exists in DB
-        Optional<PincodeDetails> pincodeDetailsOpt = pincodeRepository.findByPincode(pincode);
-        PincodeDetails pincodeDetails;
+    public Weather getWeather(String pincode, LocalDate date) throws JSONException {
 
-        if (pincodeDetailsOpt.isPresent()) {
-            pincodeDetails = pincodeDetailsOpt.get();
-        } else {
-            // Fetch Lat/Long via External API and save
-            pincodeDetails = externalApiService.getLatLongFromPincode(pincode);
-            pincodeRepository.save(pincodeDetails);
+        // Step 1: Check if Pincode exists in DB
+        Optional<PincodeDetails> pincodeDetailsOpt = pincodeRepository.findByPincode(pincode);
+        if (!pincodeDetailsOpt.isPresent()) {
+            throw new RuntimeException("Pincode not found in the database.");
         }
 
-        // Check if weather data exists for the date
+        PincodeDetails pincodeDetails = pincodeDetailsOpt.get();
+
+        // Step 2: Check if weather data for the requested date is in DB
         Optional<Weather> weatherOpt = weatherRepository.findByPincodeDetailsAndWeatherDate(pincodeDetails, date);
         if (weatherOpt.isPresent()) {
-            return weatherOpt.get();
+            return weatherOpt.get(); // Return the weather details from the database
         }
 
-        // Fetch weather via External API
-        Weather weather = externalApiService.getWeather(pincodeDetails.getLatitude(), pincodeDetails.getLongitude(), date);
-        weatherRepository.save(weather);
-
-        return weather;
+        // Step 3: If the requested date is the current date, fetch current weather from API
+        if (date.equals(LocalDate.now())) {
+            Weather weather = externalApiService.getWeather(pincodeDetails.getLatitude(), pincodeDetails.getLongitude());
+            weather.setPincodeDetails(pincodeDetails);
+            weather.setWeatherDate(date);
+            weatherRepository.save(weather); // Save the weather to the database
+            return weather;
+        } else {
+            // If it's an older date, return a message saying data is not available
+            throw new RuntimeException("Weather data for " + date + " is not available.");
+        }
     }
 }
